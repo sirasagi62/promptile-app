@@ -1,3 +1,7 @@
 build/*
 
 frontend/node_modules/*
+
+.aider.*
+
+cache.db

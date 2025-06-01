@@ -1,24 +1,38 @@
 import { PromptileSidebar } from "@/components/promptile-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { Header } from "@/components/promptile-header";
 
 export function Promptile() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-screen">
       <PromptileSidebar />
-      <main>
+      <div className="h-full w-full flex flex-col">
+        <Header />
         <SidebarTrigger />
-        <Tabs defaultValue="account" className="w-full m-4">
-          <TabsList>
-            <TabsTrigger value="account">Generator</TabsTrigger>
-            <TabsTrigger value="password">Editor</TabsTrigger>
-          </TabsList>
-          <TabsContent value="account">
+        <ResizablePanelGroup direction="horizontal" className="h-full flex grow">
+          <ResizablePanel defaultSize={50}>
+            <textarea className="w-full h-full resize-none p-2 border rounded" />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={50}>
             Make changes to your account here.
-          </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent>
-        </Tabs>
-      </main>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </SidebarProvider>
   );
 }
