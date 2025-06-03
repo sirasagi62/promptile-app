@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/resizable";
 import { Header } from "@/components/promptile-header";
 import { VStack, Rest } from "@/components/stacks";
-import { YAMLEditor } from "@/components/yaml-editor";
+import { TemplateEditor } from "@/components/template-editor";
 
 export function Promptile() {
   return (
@@ -19,7 +19,7 @@ export function Promptile() {
           <ResizablePanelGroup direction="horizontal" className="h-full">
             <ResizablePanel defaultSize={50}>
               <div className="bg-[#272822] p-2 h-full">
-                <YAMLEditor />
+                <TemplateEditor />
               </div>
               {/* <textarea className="w-full h-full resize-none p-2" /> */}
             </ResizablePanel>

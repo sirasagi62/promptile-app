@@ -4,14 +4,9 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-handlebars";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
-export function YAMLEditor() {
+export function TemplateEditor() {
   const [code, setCode] = React.useState(`- yaml`);
   return (
-    // <textarea
-    //   className='w-full h-full p-5'
-    //   value={code}
-    //   onChange={e => setCode(e.currentTarget.value)}
-    // />
     <AceEditor
       mode="handlebars"
       theme="monokai"
