@@ -1,12 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
-
-// Define the structure for session data
-type Session = {
-  id: string;
-  title: string;
-  template: string; // Add template property
-  // Add other session-related data here, like history, etc.
-};
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { nanoid } from 'nanoid';
+import { getDB, Session } from '../lib/session-db';
 
 type SessionContextType = {
   sessions: Session[];
@@ -25,19 +19,45 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
 
-  // Function to add a new session
-  const addSession = (title: string) => {
-    const newSession: Session = {
-      id: crypto.randomUUID(), // Generate a unique ID
-      title: title,
-      template: "", // Initialize with an empty template
+  useEffect(() => {
+    const loadSessions = async () => {
+      const db = await getDB();
+      const storedSessions = await db.getAll('sessions');
+      const sortedSessions = storedSessions.sort((a, b) => b.createdAt - a.createdAt);
+      setSessions(sortedSessions);
+      if (sortedSessions.length > 0) {
+        setCurrentSessionId(sortedSessions[0].id);
+      }
     };
-    setSessions([...sessions, newSession]);
+
+    loadSessions();
+  }, []);
+
+  // Function to add a new session
+  const addSession = async (title: string) => {
+    const newSession: Session = {
+      id: nanoid(),
+      title: title,
+      template: "",
+      createdAt: Date.now(),
+    };
+    const db = await getDB();
+    const tx = db.transaction('sessions', 'readwrite');
+    await tx.store.add(newSession);
+    await tx.done;
+
+    const updatedSessions = [...sessions, newSession].sort((a, b) => b.createdAt - a.createdAt);
+    setSessions(updatedSessions);
     setCurrentSessionId(newSession.id);
   };
 
   // Function to delete a session
-  const deleteSession = (id: string) => {
+  const deleteSession = async (id: string) => {
+    const db = await getDB();
+    const tx = db.transaction('sessions', 'readwrite');
+    await tx.store.delete(id);
+    await tx.done;
+
     const updatedSessions = sessions.filter((session) => session.id !== id);
     setSessions(updatedSessions);
     if (currentSessionId === id) {
@@ -51,19 +71,35 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   // Function to update a session's title
-  const updateSessionTitle = (id: string, title: string) => {
+  const updateSessionTitle = async (id: string, title: string) => {
     const updatedSessions = sessions.map((session) =>
       session.id === id ? { ...session, title: title } : session
     );
     setSessions(updatedSessions);
+
+    const sessionToUpdate = updatedSessions.find((session) => session.id === id);
+    if (sessionToUpdate) {
+      const db = await getDB();
+      const tx = db.transaction('sessions', 'readwrite');
+      await tx.store.put(sessionToUpdate);
+      await tx.done;
+    }
   };
 
   // Function to update a session's template
-  const updateSessionTemplate = (id: string, template: string) => {
+  const updateSessionTemplate = async (id: string, template: string) => {
     const updatedSessions = sessions.map((session) =>
       session.id === id ? { ...session, template: template } : session
     );
     setSessions(updatedSessions);
+
+    const sessionToUpdate = updatedSessions.find((session) => session.id === id);
+    if (sessionToUpdate) {
+      const db = await getDB();
+      const tx = db.transaction('sessions', 'readwrite');
+      await tx.store.put(sessionToUpdate);
+      await tx.done;
+    }
   };
 
   const currentSession = sessions.find((session) => session.id === currentSessionId);
@@ -85,6 +121,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     </SessionContext.Provider>
   );
 };
+
 
 export const useSession = () => {
   const context = useContext(SessionContext);
