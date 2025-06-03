@@ -1,11 +1,6 @@
 import {
-  Calendar,
-  Home,
-  Inbox,
-  Search,
-  Settings,
   FilePlus,
-  Clock,
+  MoreHorizontal,
   Trash,
 } from "lucide-react";
 
@@ -24,10 +19,15 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "@/context/session-context";
 import React, { useState } from "react";
 import { HStack, Rest } from "../stacks";
+import { Dialog } from "../ui/dialog";
+import { EditDialog } from "@/pages/_components/edit-dialog";
 
 export function PromptileSidebar() {
-  const { sessions, addSession, switchSession, deleteSession } = useSession();
+  const { sessions, addSession, switchSession, deleteSession, updateSessionTitle } = useSession();
   const [searchQuery, setSearchQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
 
   const handleAddSession = () => {
     addSession("新規セッション");
@@ -36,6 +36,23 @@ export function PromptileSidebar() {
   const filteredSessions = sessions.filter((session) =>
     session.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleOpenChange = (session: any) => {
+    setSelectedSession(session.id);
+    setEditTitle(session.title);
+    setOpen(true);
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEditTitle(e.target.value);
+  };
+
+  const handleSaveTitle = () => {
+    if (selectedSession) {
+      updateSessionTitle(selectedSession, editTitle);
+    }
+    setOpen(false);
+  };
 
   return (
     <Sidebar>
@@ -62,14 +79,14 @@ export function PromptileSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel>履歴</SidebarGroupLabel>
-          <Input
-            type="text"
-            placeholder="セッションを検索"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="mb-2"
-          />
           <SidebarGroupContent>
+            <Input
+              type="text"
+              placeholder="セッションを検索"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="mb-2"
+            />
             <SidebarMenu>
               {filteredSessions.map((session) => (
                 <SidebarMenuItem key={session.id}>
@@ -83,6 +100,13 @@ export function PromptileSidebar() {
                           {session.title}
                         </div>
                       </Rest>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleOpenChange(session)}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
                       <Trash
                         className="h-4 w-4 ml-auto"
                         onClick={() => {
@@ -97,6 +121,7 @@ export function PromptileSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <EditDialog open={open} setOpen={setOpen}/>
     </Sidebar>
   );
 }
