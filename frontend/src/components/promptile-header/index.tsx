@@ -17,7 +17,7 @@ export const Header = () => {
 
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
+    setTitle(()=>e.target.value);
   };
 
   const handleTitleBlur = () => {

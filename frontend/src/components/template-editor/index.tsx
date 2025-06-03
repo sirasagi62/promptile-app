@@ -1,22 +1,33 @@
-import React from "react";
 import AceEditor from "react-ace";
+
 
 import "ace-builds/src-noconflict/mode-handlebars";
 import "ace-builds/src-noconflict/theme-monokai";
 import "ace-builds/src-noconflict/ext-language_tools";
+import { useSession } from "../../context/session-context";
+
 export function TemplateEditor() {
-  const [code, setCode] = React.useState(`- yaml`);
+  const { currentSession, updateSessionTemplate } = useSession();
+  const currentTemplate = currentSession?.template || "";
+
+  const handleTemplateChange = (newTemplate: string) => {
+    if (currentSession) {
+      updateSessionTemplate(currentSession.id, newTemplate);
+    }
+  };
+
   return (
     <AceEditor
       mode="handlebars"
       theme="monokai"
-      onChange={(code) => setCode(code)}
+      onChange={handleTemplateChange}
       name="ACE_EDITOR_OF_MUSTACHE"
       editorProps={{ $blockScrolling: true }}
       showGutter={false}
-      style= {{
-        width:"100%",
-        height:"100%"
+      value={currentTemplate}
+      style={{
+        width: "100%",
+        height: "100%",
       }}
     />
   );

@@ -4,6 +4,7 @@ import React, { createContext, useState, useContext } from 'react';
 type Session = {
   id: string;
   title: string;
+  template: string; // Add template property
   // Add other session-related data here, like history, etc.
 };
 
@@ -14,6 +15,7 @@ type SessionContextType = {
   deleteSession: (id: string) => void;
   switchSession: (id: string) => void;
   updateSessionTitle: (id: string, title: string) => void;
+  updateSessionTemplate: (id: string, template: string) => void; // Add updateSessionTemplate
   currentSession: Session | undefined;
 };
 
@@ -28,11 +30,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const newSession: Session = {
       id: crypto.randomUUID(), // Generate a unique ID
       title: title,
+      template: "", // Initialize with an empty template
     };
     setSessions([...sessions, newSession]);
-    if (sessions.length === 0) {
-      setCurrentSessionId(newSession.id);
-    }
+    setCurrentSessionId(newSession.id);
   };
 
   // Function to delete a session
@@ -57,6 +58,14 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setSessions(updatedSessions);
   };
 
+  // Function to update a session's template
+  const updateSessionTemplate = (id: string, template: string) => {
+    const updatedSessions = sessions.map((session) =>
+      session.id === id ? { ...session, template: template } : session
+    );
+    setSessions(updatedSessions);
+  };
+
   const currentSession = sessions.find((session) => session.id === currentSessionId);
 
   return (
@@ -68,6 +77,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         deleteSession,
         switchSession,
         updateSessionTitle,
+        updateSessionTemplate,
         currentSession,
       }}
     >

@@ -20,14 +20,22 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useSession } from "@/context/session-context";
+import React, { useState } from "react";
+import { HStack, Rest } from "../stacks";
 
 export function PromptileSidebar() {
   const { sessions, addSession, switchSession, deleteSession } = useSession();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleAddSession = () => {
     addSession("新規セッション");
   };
+
+  const filteredSessions = sessions.filter((session) =>
+    session.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <Sidebar>
@@ -54,27 +62,34 @@ export function PromptileSidebar() {
 
         <SidebarGroup>
           <SidebarGroupLabel>履歴</SidebarGroupLabel>
+          <Input
+            type="text"
+            placeholder="セッションを検索"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="mb-2"
+          />
           <SidebarGroupContent>
             <SidebarMenu>
-              {sessions.map((session) => (
+              {filteredSessions.map((session) => (
                 <SidebarMenuItem key={session.id}>
                   <SidebarMenuButton asChild>
-                    <div className="justify-start w-full gap-2">
-                      <Button
-                        variant="ghost"
-                        className="pl-0"
+                    <HStack>
+                      <Rest
                         onClick={() => switchSession(session.id)}
+                        className=""
                       >
-                        <Clock className="h-4 w-4" />
-                        <span>{session.title}</span>
-                      </Button>
+                        <div className="text-center">
+                          {session.title}
+                        </div>
+                      </Rest>
                       <Trash
                         className="h-4 w-4 ml-auto"
                         onClick={() => {
                           deleteSession(session.id);
                         }}
                       />
-                    </div>
+                    </HStack>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
