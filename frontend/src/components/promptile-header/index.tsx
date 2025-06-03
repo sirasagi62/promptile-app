@@ -42,10 +42,6 @@ export const Header = () => {
           className="w-64"
           disabled={!currentSession}
         />
-        <Button variant="outline">
-          <a href="https://ui.shadcn.com/docs">公式 Document</a>
-        </Button>
-        <Button>menu</Button>
       </HeaderGroup>
     </HeaderStack>
   );

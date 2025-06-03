@@ -24,6 +24,7 @@ export function TemplateEditor() {
       name="ACE_EDITOR_OF_MUSTACHE"
       editorProps={{ $blockScrolling: true }}
       showGutter={false}
+      showPrintMargin={false}
       value={currentTemplate}
       style={{
         width: "100%",
