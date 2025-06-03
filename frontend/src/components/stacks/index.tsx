@@ -37,7 +37,7 @@ export const HeaderStack = ({ children, className, ...props }: DivProps) => {
   );
 };
 
-export const HeaderRightBox = ({ children, className, ...props }: DivProps) => {
+export const HeaderGroup = ({ children, className, ...props }: DivProps) => {
   return (
     <div {...props} className={`flex ${className}`}>
       {children}

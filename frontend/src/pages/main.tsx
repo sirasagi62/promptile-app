@@ -1,38 +1,35 @@
 import { PromptileSidebar } from "@/components/promptile-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { Header } from "@/components/promptile-header";
+import { VStack, Rest } from "@/components/stacks";
+import { YAMLEditor } from "@/components/yaml-editor";
 
 export function Promptile() {
   return (
     <SidebarProvider className="h-screen">
       <PromptileSidebar />
-      <div className="h-full w-full flex flex-col">
+      <VStack className="w-full">
         <Header />
-        <SidebarTrigger />
-        <ResizablePanelGroup direction="horizontal" className="h-full flex grow">
-          <ResizablePanel defaultSize={50}>
-            <textarea className="w-full h-full resize-none p-2 border rounded" />
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={50}>
-            Make changes to your account here.
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
+        <Rest>
+          <ResizablePanelGroup direction="horizontal" className="h-full">
+            <ResizablePanel defaultSize={50}>
+              <div className="bg-[#272822] p-2 h-full">
+                <YAMLEditor />
+              </div>
+              {/* <textarea className="w-full h-full resize-none p-2" /> */}
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel defaultSize={50}>
+              Make changes to your account here.
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </Rest>
+      </VStack>
     </SidebarProvider>
   );
 }
