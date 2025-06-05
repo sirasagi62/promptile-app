@@ -1,8 +1,4 @@
-import {
-  FilePlus,
-  MoreHorizontal,
-  Trash,
-} from "lucide-react";
+import { FilePlus, MoreHorizontal, Trash } from "lucide-react";
 
 import {
   Sidebar,
@@ -19,11 +15,16 @@ import { Input } from "@/components/ui/input";
 import { useSession } from "@/context/session-context";
 import React, { useState } from "react";
 import { HStack, Rest } from "../stacks";
-import { Dialog } from "../ui/dialog";
-import { EditDialog } from "@/pages/_components/edit-dialog";
+import { EditDialog } from "@/components/promptile-sidebar/_components/edit-dialog";
 
 export function PromptileSidebar() {
-  const { sessions, addSession, switchSession, deleteSession, updateSessionTitle } = useSession();
+  const {
+    sessions,
+    addSession,
+    switchSession,
+    deleteSession,
+    updateSessionTitle,
+  } = useSession();
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
@@ -96,9 +97,7 @@ export function PromptileSidebar() {
                         onClick={() => switchSession(session.id)}
                         className=""
                       >
-                        <div className="text-center">
-                          {session.title}
-                        </div>
+                        <div className="text-center">{session.title}</div>
                       </Rest>
                       <Button
                         variant="ghost"
@@ -121,7 +120,13 @@ export function PromptileSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <EditDialog open={open} setOpen={setOpen}/>
+      <EditDialog
+        open={open}
+        setOpen={setOpen}
+        editTitle={editTitle}
+        handleSaveTitle={handleSaveTitle}
+        handleTitleChange={handleTitleChange}
+      />
     </Sidebar>
   );
 }
