@@ -12,6 +12,7 @@ export type Session = {
   title: string;
   template: string;
   createdAt: number;
+  variables: Record<string, string>; // Added for storing variable types
 };
 
 let dbPromise: Promise<IDBPDatabase<SessionDB>>;

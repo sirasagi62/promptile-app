@@ -9,7 +9,8 @@ type SessionContextType = {
   deleteSession: (id: string) => void;
   switchSession: (id: string) => void;
   updateSessionTitle: (id: string, title: string) => void;
-  updateSessionTemplate: (id: string, template: string) => void; // Add updateSessionTemplate
+  updateSessionTemplate: (id: string, template: string) => void;
+  updateSessionVariables: (id: string, variables: Record<string, string>) => void; // Add updateSessionVariables
   currentSession: Session | undefined;
 };
 
@@ -40,6 +41,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       title: title,
       template: "",
       createdAt: Date.now(),
+      variables: {}, // Initialize variables for new sessions
     };
     const db = await getDB();
     const tx = db.transaction('sessions', 'readwrite');
@@ -102,6 +104,22 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  // Function to update a session's variables
+  const updateSessionVariables = async (id: string, variables: Record<string, string>) => {
+    const updatedSessions = sessions.map((session) =>
+      session.id === id ? { ...session, variables: variables } : session
+    );
+    setSessions(updatedSessions);
+
+    const sessionToUpdate = updatedSessions.find((session) => session.id === id);
+    if (sessionToUpdate) {
+      const db = await getDB();
+      const tx = db.transaction('sessions', 'readwrite');
+      await tx.store.put(sessionToUpdate);
+      await tx.done;
+    }
+  };
+
   const currentSession = sessions.find((session) => session.id === currentSessionId);
 
   return (
@@ -114,6 +132,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         switchSession,
         updateSessionTitle,
         updateSessionTemplate,
+        updateSessionVariables, // Provide the new function
         currentSession,
       }}
     >
