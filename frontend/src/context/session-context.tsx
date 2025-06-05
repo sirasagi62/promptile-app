@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { getDB, Session } from '../lib/session-db';
+import { extractMustacheVariables } from '../lib/template-utils';
 
 type SessionContextType = {
   sessions: Session[];
@@ -10,7 +11,7 @@ type SessionContextType = {
   switchSession: (id: string) => void;
   updateSessionTitle: (id: string, title: string) => void;
   updateSessionTemplate: (id: string, template: string) => void;
-  updateSessionVariables: (id: string, variables: Record<string, string>) => void; // Add updateSessionVariables
+  updateSessionVariables: (id: string, variables: Record<string, string>) => void;
   currentSession: Session | undefined;
 };
 
@@ -22,17 +23,52 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   useEffect(() => {
     const loadSessions = async () => {
-      const db = await getDB();
-      const storedSessions = await db.getAll('sessions');
-      const sortedSessions = storedSessions.sort((a, b) => b.createdAt - a.createdAt);
-      setSessions(sortedSessions);
-      if (sortedSessions.length > 0) {
-        setCurrentSessionId(sortedSessions[0].id);
+      try {
+        const db = await getDB();
+        const storedSessions = await db.getAll('sessions');
+        const sortedSessions = storedSessions.sort((a, b) => b.createdAt - a.createdAt);
+        setSessions(sortedSessions);
+        if (sortedSessions.length > 0) {
+          setCurrentSessionId(sortedSessions[0].id);
+        }
+      } catch (error) {
+        console.error("Failed to load sessions from DB:", error);
       }
     };
 
     loadSessions();
   }, []);
+
+  // Helper function to update a session in state and persist to IndexedDB
+  const _updateAndPersistSession = async (
+    id: string,
+    updater: (session: Session) => Session
+  ) => {
+    const sessionToModify = sessions.find((s) => s.id === id);
+    if (!sessionToModify) {
+      console.warn(`Attempted to update non-existent session with ID: ${id}`);
+      return;
+    }
+
+    const updatedSession = updater(sessionToModify);
+
+    // Update state optimistically
+    setSessions((prevSessions) =>
+      prevSessions.map((s) => (s.id === id ? updatedSession : s))
+    );
+
+    // Persist to IndexedDB
+    try {
+      const db = await getDB();
+      const tx = db.transaction('sessions', 'readwrite');
+      await tx.store.put(updatedSession);
+      await tx.done;
+    } catch (error) {
+      console.error(`Failed to persist session ${id} to DB:`, error);
+      // Optionally, revert state or show error to user
+      // For now, just log the error.
+    }
+  };
 
   // Function to add a new session
   const addSession = async (title: string) => {
@@ -43,27 +79,36 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       createdAt: Date.now(),
       variables: {}, // Initialize variables for new sessions
     };
-    const db = await getDB();
-    const tx = db.transaction('sessions', 'readwrite');
-    await tx.store.add(newSession);
-    await tx.done;
 
-    const updatedSessions = [...sessions, newSession].sort((a, b) => b.createdAt - a.createdAt);
-    setSessions(updatedSessions);
-    setCurrentSessionId(newSession.id);
+    try {
+      const db = await getDB();
+      const tx = db.transaction('sessions', 'readwrite');
+      await tx.store.add(newSession);
+      await tx.done;
+
+      const updatedSessions = [...sessions, newSession].sort((a, b) => b.createdAt - a.createdAt);
+      setSessions(updatedSessions);
+      setCurrentSessionId(newSession.id);
+    } catch (error) {
+      console.error("Failed to add new session to DB:", error);
+    }
   };
 
   // Function to delete a session
   const deleteSession = async (id: string) => {
-    const db = await getDB();
-    const tx = db.transaction('sessions', 'readwrite');
-    await tx.store.delete(id);
-    await tx.done;
+    try {
+      const db = await getDB();
+      const tx = db.transaction('sessions', 'readwrite');
+      await tx.store.delete(id);
+      await tx.done;
 
-    const updatedSessions = sessions.filter((session) => session.id !== id);
-    setSessions(updatedSessions);
-    if (currentSessionId === id) {
-      setCurrentSessionId(updatedSessions.length > 0 ? updatedSessions[0].id : null);
+      const updatedSessions = sessions.filter((session) => session.id !== id);
+      setSessions(updatedSessions);
+      if (currentSessionId === id) {
+        setCurrentSessionId(updatedSessions.length > 0 ? updatedSessions[0].id : null);
+      }
+    } catch (error) {
+      console.error(`Failed to delete session ${id} from DB:`, error);
     }
   };
 
@@ -74,50 +119,31 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Function to update a session's title
   const updateSessionTitle = async (id: string, title: string) => {
-    const updatedSessions = sessions.map((session) =>
-      session.id === id ? { ...session, title: title } : session
-    );
-    setSessions(updatedSessions);
-
-    const sessionToUpdate = updatedSessions.find((session) => session.id === id);
-    if (sessionToUpdate) {
-      const db = await getDB();
-      const tx = db.transaction('sessions', 'readwrite');
-      await tx.store.put(sessionToUpdate);
-      await tx.done;
-    }
+    await _updateAndPersistSession(id, (session) => ({ ...session, title }));
   };
 
-  // Function to update a session's template
+  // Function to update a session's template and extract variables atomically
   const updateSessionTemplate = async (id: string, template: string) => {
-    const updatedSessions = sessions.map((session) =>
-      session.id === id ? { ...session, template: template } : session
-    );
-    setSessions(updatedSessions);
+    await _updateAndPersistSession(id, (session) => {
+      const newExtractedVariables = extractMustacheVariables(template);
+      const updatedVariables: Record<string, string> = {};
 
-    const sessionToUpdate = updatedSessions.find((session) => session.id === id);
-    if (sessionToUpdate) {
-      const db = await getDB();
-      const tx = db.transaction('sessions', 'readwrite');
-      await tx.store.put(sessionToUpdate);
-      await tx.done;
-    }
+      // Preserve types for existing variables, add new ones with default "string" type
+      newExtractedVariables.forEach((variable) => {
+        updatedVariables[variable] = session.variables[variable] || "string";
+      });
+
+      return {
+        ...session,
+        template: template,
+        variables: updatedVariables, // Update variables here
+      };
+    });
   };
 
-  // Function to update a session's variables
+  // Function to update a session's variables (used by VariablePanel for manual changes)
   const updateSessionVariables = async (id: string, variables: Record<string, string>) => {
-    const updatedSessions = sessions.map((session) =>
-      session.id === id ? { ...session, variables: variables } : session
-    );
-    setSessions(updatedSessions);
-
-    const sessionToUpdate = updatedSessions.find((session) => session.id === id);
-    if (sessionToUpdate) {
-      const db = await getDB();
-      const tx = db.transaction('sessions', 'readwrite');
-      await tx.store.put(sessionToUpdate);
-      await tx.done;
-    }
+    await _updateAndPersistSession(id, (session) => ({ ...session, variables }));
   };
 
   const currentSession = sessions.find((session) => session.id === currentSessionId);
@@ -132,7 +158,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         switchSession,
         updateSessionTitle,
         updateSessionTemplate,
-        updateSessionVariables, // Provide the new function
+        updateSessionVariables,
         currentSession,
       }}
     >
@@ -140,7 +166,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     </SessionContext.Provider>
   );
 };
-
 
 export const useSession = () => {
   const context = useContext(SessionContext);
