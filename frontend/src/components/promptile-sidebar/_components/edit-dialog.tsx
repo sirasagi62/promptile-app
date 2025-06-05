@@ -19,14 +19,14 @@ export function EditDialog({
 }: EditDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white p-[25px] shadow-blackA9 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-100 data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-top-0 focus:outline-none">
+      <DialogContent className="fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded-[6px] bg-white p-[25px] shadow-blackA9 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-100 data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-top-0 focus:outline-hidden">
         <DialogTitle className="m-0 text-[17px] font-medium">
           セッション名の編集
         </DialogTitle>
         <fieldset className="mb-[15px] flex items-center gap-5">
           <label
             htmlFor="name"
-            className="text-[15px] font-medium leading-[1.5]"
+            className="text-[15px] font-medium leading-normal"
           >
             タイトル
           </label>
