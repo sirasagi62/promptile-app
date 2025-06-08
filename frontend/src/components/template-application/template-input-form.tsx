@@ -1,33 +1,29 @@
-import * as React from "react";
 import { VStack } from "@/components/stacks";
 import { useSession } from "@/context/session-context";
 import { useMemo, useEffect } from "react";
-import { useAtom } from "jotai"; // Import useAtom
-import { templateInputValuesAtom } from "@/atoms"; // Import the atom
+import { useAtom } from "jotai";
+import { templateInputValuesAtom } from "@/atoms";
+import { StringInput } from "./input-fields/StringInput"; // Import new components
+import { MultiLineStringInput } from "./input-fields/MultiLineStringInput";
+import { NumberInput } from "./input-fields/NumberInput";
+import { DateTimeInput } from "./input-fields/DateTimeInput";
 
-interface TemplateInputFormProps {
-  // onValuesChange prop is no longer needed as state is managed by Jotai atom
-}
-
-export function TemplateInputForm({}: TemplateInputFormProps) {
+export function TemplateInputForm() {
   const { currentSession } = useSession();
   const sessionVariables = useMemo(
     () => currentSession?.variables || {},
     [currentSession]
   );
 
-  // Use Jotai atom for input values
   const [inputValues, setInputValues] = useAtom(templateInputValuesAtom);
 
-  // Initialize inputValues when sessionVariables change
   useEffect(() => {
     const initialValues: Record<string, string> = {};
     Object.keys(sessionVariables).forEach((variableName) => {
-      // Initialize with empty string or existing value if available
       initialValues[variableName] = inputValues[variableName] || "";
     });
     setInputValues(initialValues);
-  }, [sessionVariables]); // Depend on sessionVariables
+  }, [sessionVariables, setInputValues]); // Added setInputValues to dependency array for completeness
 
   const handleInputChange = (variableName: string, value: string) => {
     setInputValues((prevValues) => ({
@@ -42,14 +38,12 @@ export function TemplateInputForm({}: TemplateInputFormProps) {
   );
 
   const renderInputField = (variableName: string, type: string) => {
-    const value = inputValues[variableName] || ""; // Ensure value is always a string for input elements
+    const value = inputValues[variableName] || "";
 
     switch (type) {
       case "string":
         return (
-          <input
-            type="text"
-            className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+          <StringInput
             placeholder={`Enter ${variableName}`}
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
@@ -59,8 +53,7 @@ export function TemplateInputForm({}: TemplateInputFormProps) {
       case "programming-language":
       case "array":
         return (
-          <textarea
-            className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px]"
+          <MultiLineStringInput
             placeholder={`Enter ${variableName} (multi-line)`}
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
@@ -68,9 +61,7 @@ export function TemplateInputForm({}: TemplateInputFormProps) {
         );
       case "number":
         return (
-          <input
-            type="number"
-            className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+          <NumberInput
             placeholder={`Enter ${variableName}`}
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
@@ -78,18 +69,14 @@ export function TemplateInputForm({}: TemplateInputFormProps) {
         );
       case "datetime":
         return (
-          <input
-            type="datetime-local"
-            className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+          <DateTimeInput
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
           />
         );
       default:
         return (
-          <input
-            type="text"
-            className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus:border-primary focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+          <StringInput
             placeholder={`Unsupported type: ${type}`}
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
@@ -112,11 +99,11 @@ export function TemplateInputForm({}: TemplateInputFormProps) {
           </p>
         ) : (
           variableNames.map((variable) => (
-            <div key={variable} className="grid grid-cols-4 items-center gap-4">
-              <label className="text-right col-span-1">
+            <div key={variable} className="grid grid-cols-6 items-center gap-4">
+              <label className="text-right font-bold col-span-1">
                 {variable}
               </label>
-              <div className="col-span-3">
+              <div className="col-span-5">
                 {renderInputField(variable, sessionVariables[variable])}
               </div>
             </div>
