@@ -3,10 +3,12 @@ import { useSession } from "@/context/session-context";
 import { useMemo, useEffect } from "react";
 import { useAtom } from "jotai";
 import { templateInputValuesAtom } from "@/atoms";
-import { StringInput } from "./input-fields/StringInput"; // Import new components
+import { StringInput } from "./input-fields/StringInput";
 import { MultiLineStringInput } from "./input-fields/MultiLineStringInput";
 import { NumberInput } from "./input-fields/NumberInput";
 import { DateTimeInput } from "./input-fields/DateTimeInput";
+import { Combobox } from "@/components/ui/combobox"; // Import Combobox
+import { PROGRAMMING_LANGUAGE_OPTIONS } from "@/lib/variable-types"; // Import programming language options
 
 export function TemplateInputForm() {
   const { currentSession } = useSession();
@@ -23,7 +25,7 @@ export function TemplateInputForm() {
       initialValues[variableName] = inputValues[variableName] || "";
     });
     setInputValues(initialValues);
-  }, [sessionVariables, setInputValues]); // Added setInputValues to dependency array for completeness
+  }, [sessionVariables, setInputValues]);
 
   const handleInputChange = (variableName: string, value: string) => {
     setInputValues((prevValues) => ({
@@ -50,8 +52,7 @@ export function TemplateInputForm() {
           />
         );
       case "string-multi-line":
-      case "programming-language":
-      case "array":
+      case "array": // Treat array as multi-line string for now (e.g., JSON or comma-separated)
         return (
           <MultiLineStringInput
             placeholder={`Enter ${variableName} (multi-line)`}
@@ -72,6 +73,16 @@ export function TemplateInputForm() {
           <DateTimeInput
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
+          />
+        );
+      case "programming-language":
+        return (
+          <Combobox
+            options={PROGRAMMING_LANGUAGE_OPTIONS}
+            value={value}
+            onValueChange={(newValue) => handleInputChange(variableName, newValue)}
+            placeholder={`Select ${variableName} language`}
+            className="w-full"
           />
         );
       default:
