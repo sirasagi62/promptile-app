@@ -25,9 +25,7 @@ export function Promptile() {
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel defaultSize={50}>
-              <VariablePanel
-                // Removed sessionVariables and onSave props
-              />
+              <VariablePanel />
             </ResizablePanel>
           </ResizablePanelGroup>
         </Rest>

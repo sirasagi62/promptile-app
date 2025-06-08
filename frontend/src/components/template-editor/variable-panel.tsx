@@ -12,12 +12,11 @@ export function VariablePanel() {
   // Define common variable type options for the Combobox
   const typeOptions = [
     { value: "string", label: "String" },
+    { value: "string-multi-line", label:"StringMultiLine"},
     { value: "number", label: "Number" },
-    { value: "boolean", label: "Boolean" },
-    { value: "object", label: "Object" },
+    { value: "datetime", label: "DateTime" },
+    { value: "programming-language", label: "ProglammingLaunguage" },
     { value: "array", label: "Array" },
-    { value: "null", label: "Null" },
-    { value: "undefined", label: "Undefined" },
   ];
 
   const variableNames = useMemo(
@@ -49,7 +48,7 @@ export function VariablePanel() {
         ) : (
           Object.keys(sessionVariables).map((variable) => (
             <div key={variable} className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor={variable} className="text-right col-span-2">
+              <label className="text-right col-span-1">
                 {variable}
               </label>
               <Combobox // Use Combobox here
@@ -58,7 +57,7 @@ export function VariablePanel() {
                 onValueChange={(newValue) =>
                   handleTypeChange(variable, newValue)
                 }
-                className="col-span-2"
+                className="col-span-3"
                 placeholder="Select type"
               />
             </div>
