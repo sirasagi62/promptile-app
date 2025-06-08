@@ -25,6 +25,7 @@ export function TemplateEditor() {
         editorProps={{ $blockScrolling: true }}
         showGutter={false}
         showPrintMargin={false}
+        wrapEnabled={true}
         value={currentTemplate}
         style={{
           width: "100%",

@@ -28,7 +28,7 @@ export function Promptile() {
       <VStack className="w-full">
         <Header />
         <Rest>
-          <Tabs defaultValue="edit" className="h-full w-full flex flex-col">
+          <Tabs defaultValue="templates" className="h-full w-full flex flex-col">
             <TabsList className="w-fit">
               <TabsTrigger value="edit">Edit</TabsTrigger>
               <TabsTrigger value="templates">Templates</TabsTrigger>
