@@ -20,7 +20,11 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sessions, setSessions] = useState<Session[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [currentSessionId, _setCurrentSessionId] = useState<string | null>(null);
+  const setCurrentSessionId=(id: string|null)=>{
+    if (id) localStorage.setItem('lastActiveSessionId',id)
+    _setCurrentSessionId(id)
+  }
 
   useEffect(() => {
     const loadSessions = async () => {
@@ -29,9 +33,24 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const storedSessions = await db.getAll('sessions');
         const sortedSessions = storedSessions.sort((a, b) => b.createdAt - a.createdAt);
         setSessions(sortedSessions);
-        if (sortedSessions.length > 0) {
-          setCurrentSessionId(sortedSessions[0].id);
+
+        let lastActiveSessionId = localStorage.getItem('lastActiveSessionId');
+
+        if (lastActiveSessionId) {
+          // Check if the last active session still exists
+          const foundSession = sortedSessions.find(s => s.id === lastActiveSessionId);
+          if (foundSession) {
+            lastActiveSessionId = foundSession.id;
+          }
         }
+
+        // If no specific session was found or preferred, default to the most recent one
+        if (!lastActiveSessionId && sortedSessions.length > 0) {
+          lastActiveSessionId = sortedSessions[0].id;
+        }
+
+        setCurrentSessionId(lastActiveSessionId);
+
       } catch (error) {
         console.error("Failed to load sessions from DB:", error);
       }
