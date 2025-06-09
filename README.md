@@ -1,40 +1,25 @@
-# README
+# Promptile
+<img src="./assets/promptile-full-icon-std.svg" />
+<img src="./assets/promptile-demo.gif" />
+<br />
 
 ## About
+Promptile is a cross-platform GUI application that allows you to save and reuse prompts as templates for inputting into LLMs.
+- Mustache-based template functionality
+- Type setting and type-based template application features
+- Cross-platform support for Windows/Linux/Mac (Experimental)
 
-This template comes with Vite, React, TypeScript, TailwindCSS and shadcn/ui.
-
-Built with `Wails v2.5.1` and [shadcn's CLI](https://ui.shadcn.com/docs/cli)
-
-### Using the Template
-```console
-wails init -n project-name -t https://github.com/Mahcks/wails-vite-react-tailwind-shadcnui-ts
+## Install
+### Prerequisites
+Builds are performed for each platform. You need to have a Golang development environment and the `wails` command pre-installed for building. Please install the latest version of `wails` following the [Wails installation guide](https://wails.io/docs/gettingstarted/installation).
+### Install Promptile
+Run the following command in the root of the project.
+```sh
+wails build
 ```
+After building, the binary will be generated in the `./build/bin` directory.
 
-```console
-cd frontend
+If you want to build for a specific platform, please set the platform.
+```sh
+wails build --platform windows
 ```
-
-```console
-npm install
-```
-
-### Installing Components
-To install components, use shadcn's CLI tool to install
-
-More info here: https://ui.shadcn.com/docs/cli#add
-
-Example:
-```console
-npx shadcn-ui@latest add [component]
-```
-
-## Live Development
-
-To run in live development mode, run `wails dev` in the project directory. In another terminal, go into the `frontend`
-directory and run `npm run dev`. The frontend dev server will run on http://localhost:34115. Connect to this in your
-browser and connect to your application.
-
-## Building
-
-To build a redistributable, production mode package, use `wails build`.
