@@ -13,9 +13,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { TemplateInputForm } from "@/components/template-application/template-input-form";
 import { TemplateOutputDisplay } from "@/components/template-application/template-output-display";
 import { useSession } from "@/context/session-context";
+import { useTranslation } from "react-i18next";
 // No need to import useState here anymore for templateInputValues
 
 export function Promptile() {
+  const { t } = useTranslation(); // Initialize useTranslation
+  
   const { currentSession } = useSession();
   const currentTemplate = currentSession?.template || "";
 
@@ -30,8 +33,8 @@ export function Promptile() {
         <Rest>
           <Tabs defaultValue="templates" className="h-full w-full flex flex-col">
             <TabsList className="w-fit">
-              <TabsTrigger value="edit">Edit</TabsTrigger>
-              <TabsTrigger value="templates">Templates</TabsTrigger>
+              <TabsTrigger value="edit">{t("mainPage.edit")}</TabsTrigger>
+              <TabsTrigger value="templates">{t("mainPage.template")}</TabsTrigger>
             </TabsList>
             <TabsContent value="edit" className="flex-1">
               <ResizablePanelGroup direction="horizontal" className="h-full">

@@ -1,0 +1,40 @@
+{
+  "greeting": "Hello",
+  "editDialog": {
+    "title": "Edit Session Name",
+    "labelTitle": "Title"
+  },
+  "mainPage": {
+    "edit": "Edit",
+    "template": "Template"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "templateOutput": {
+    "placeholder": "The processed template output will appear here.",
+    "errorPrefix": "Error processing template: ",
+    "title": "Template Output",
+    "copied": "Copied!",
+    "failedToCopy": "Failed to copy!"
+  },
+  "variablePanel": {
+    "title": "Configure Template Variables",
+    "description": "Define the types for your template variables.",
+    "noVariables": "No variables found in the template.",
+    "selectTypePlaceholder": "Select type"
+  },
+  "sidebar": {
+    "newSessionDefaultTitle": "New Session",
+    "applicationGroupLabel": "Application",
+    "createNew": "Create New",
+    "historyGroupLabel": "History",
+    "searchSessionsPlaceholder": "Search sessions"
+  },
+  "templateInputForm": {
+    "title": "Template Inputs",
+    "description": "Enter values for your template variables.",
+    "noVariables": "No variables found in the template."
+  }
+}

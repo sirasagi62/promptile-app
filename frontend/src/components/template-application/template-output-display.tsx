@@ -13,12 +13,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"; // Import Tooltip components
 import { cn } from "@/lib/utils"; 
+import { useTranslation } from "react-i18next"; // Import useTranslation
 
 interface TemplateOutputDisplayProps {
   template: string;
 }
 
 export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) {
+  const { t } = useTranslation(); // Initialize useTranslation
   // Use the updated atom type
   const [variableDataMap] = useAtom(templateInputValuesAtom);
   // Read the currently editing variable key
@@ -28,8 +30,8 @@ export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) 
   const processedOutput = React.useMemo(() => {
     if (!template) {
       return {
-        segments: [{ type: 'text', content: "The processed template output will appear here." }] as TemplateSegment[],
-        plainTextContent: "The processed template output will appear here.",
+        segments: [{ type: 'text', content: t('templateOutput.placeholder') }] as TemplateSegment[],
+        plainTextContent: t('templateOutput.placeholder'),
         isError: false,
       };
     }
@@ -58,22 +60,23 @@ export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) 
       };
     } catch (error) {
       console.error("Error processing Handlebars template:", error);
+      const errorMessage = `${t('templateOutput.errorPrefix')}${error instanceof Error ? error.message : String(error)}`;
       return {
-        segments: [{ type: 'text', content: `Error processing template: ${error instanceof Error ? error.message : String(error)}` }] as TemplateSegment[],
-        plainTextContent: `Error processing template: ${error instanceof Error ? error.message : String(error)}`,
+        segments: [{ type: 'text', content: errorMessage }] as TemplateSegment[],
+        plainTextContent: errorMessage,
         isError: true,
       };
     }
-  }, [template, variableDataMap]); // Depend on variableDataMap
+  }, [template, variableDataMap, t]); // Depend on variableDataMap and t
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(processedOutput.plainTextContent);
-      setCopyStatus("Copied!");
+      setCopyStatus(t('templateOutput.copied'));
       setTimeout(() => setCopyStatus(""), 2000); // Clear message after 2 seconds
     } catch (err) {
       console.error("Failed to copy text: ", err);
-      setCopyStatus("Failed to copy!");
+      setCopyStatus(t('templateOutput.failedToCopy'));
       setTimeout(() => setCopyStatus(""), 2000); // Clear message after 2 seconds
     }
   };
@@ -81,7 +84,7 @@ export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) 
   return (
     <VStack className="h-full p-4 overflow-auto bg-muted/30 rounded-md">
       <div className="flex items-center justify-between mb-4"> {/* Flex container for heading and button */}
-        <h2 className="text-lg font-semibold">Template Output</h2>
+        <h2 className="text-lg font-semibold">{t('templateOutput.title')}</h2>
         <div className="flex items-center gap-2">
           {copyStatus && (
             <span className="text-sm text-muted-foreground">
