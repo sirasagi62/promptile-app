@@ -69,7 +69,8 @@ export function processTemplateForDisplay(
     } else {
       // Add variable segment
       const variableData = variableDataMap[variableName];
-      const substitutedValue = variableData.value==="" ? `(${variableName})` : variableData.value ; // Use empty string if variable not found
+      // 代入されていない場合は括弧で変数を囲う
+      const substitutedValue = variableData.value==="" ? `(${variableName})` : variableData.value ;
       const variableType = variableData?.type || 'unknown'; // Get the type from variableDataMap
       segments.push({ type: 'variable', name: variableName, value: substitutedValue, variableType: variableType }); // Include variableType
     }

@@ -30,6 +30,8 @@ interface ComboboxProps {
   onValueChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  onFocus?: ()=>void; // 変数を渡すことはないので引数はなし
+  onBlur?: ()=>void;  // 上に同じ
 }
 
 export function Combobox({
@@ -38,11 +40,23 @@ export function Combobox({
   onValueChange,
   placeholder = "Select type...",
   className,
+  onFocus, // Destructure onFocus
+  onBlur,  // Destructure onBlur
 }: ComboboxProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, _setOpen] = React.useState(false)
+
+  // フォーカスをボタンではなくCombobox全体で管理するため、setOpen関数をwrapしてStateとonFocus,onBlurの挙動を一致させる。
+  const setOpenWithFocusing=(isOpen:boolean)=>{
+    _setOpen(isOpen)
+    if (isOpen){
+      if(onFocus) onFocus()
+    } else {
+      if(onBlur) onBlur()
+    }
+  }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpenWithFocusing}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -68,7 +82,7 @@ export function Combobox({
                   value={option.label} // Use label for search, value for selection
                   onSelect={() => {
                     onValueChange(option.value === value ? "" : option.value)
-                    setOpen(false)
+                    setOpenWithFocusing(false)
                   }}
                 >
                   <Check

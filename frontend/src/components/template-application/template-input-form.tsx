@@ -55,9 +55,7 @@ export function TemplateInputForm() {
 
   const handleInputBlur = () => {
     // Set to null when any input in this form loses focus
-    // Note: This will clear the active state if tabbing between fields.
-    // A more sophisticated approach might be needed if you want to keep
-    // the highlight while tabbing within the form.
+    // This handles tabbing between fields correctly for highlight removal.
     setEditingVariableKey(null);
   };
 
@@ -113,27 +111,14 @@ export function TemplateInputForm() {
           />
         );
       case "programming-language":
-        // Combobox handles its own focus/blur internally, but we can pass these
-        // to its underlying trigger if it supports it, or manage it differently.
-        // For simplicity, we'll pass it to onValueChange for now, though it's not
-        // a direct focus event. A custom Combobox component might need to expose
-        // onFocus/onBlur from its internal input/button.
         return (
           <Combobox
             options={PROGRAMMING_LANGUAGE_OPTIONS}
             value={value}
-            onValueChange={(newValue) => {
-              handleInputChange(variableName, newValue);
-              // For combobox, onValueChange is the closest to an "interaction"
-              // that might imply editing. Actual focus/blur on the input part
-              // of the combobox would be more precise.
-              setEditingVariableKey(variableName); // Set on change
-              // No direct blur equivalent for Combobox's internal input here
-            }}
+            onValueChange={(newValue) => handleInputChange(variableName, newValue)}
             placeholder={`Select ${variableName} language`}
             className="w-full"
-            // If Combobox had an input element, we'd pass commonProps to it.
-            // For now, focus/blur tracking for Combobox might be less precise.
+            {...commonProps} // Pass commonProps to Combobox
           />
         );
       default:
