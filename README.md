@@ -8,7 +8,7 @@
 
 ## About
 
-Promptile is a cross-platform GUI application that allows you to save and reuse prompts as templates for inputting into LLMs.
+Promptile (pronounced `prɒmptaɪl`) is a cross-platform GUI application that allows you to save and reuse prompts as templates for inputting into LLMs.
 
 - Mustache-based template functionality
 - Type setting and type-based template application features
