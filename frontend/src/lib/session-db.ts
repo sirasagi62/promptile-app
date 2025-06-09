@@ -1,4 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { TemplateVariableData } from '../atoms'; // Import TemplateVariableData
 
 interface SessionDB extends DBSchema {
   sessions: {
@@ -12,7 +13,7 @@ export type Session = {
   title: string;
   template: string;
   createdAt: number;
-  variables: Record<string, string>; // Added for storing variable types
+  variables: Record<string, TemplateVariableData>; // Changed to store TemplateVariableData
 };
 
 let dbPromise: Promise<IDBPDatabase<SessionDB>>;

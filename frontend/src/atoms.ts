@@ -1,8 +1,9 @@
 import { atom } from 'jotai';
+import { VariableTypeName } from './lib/variable-types'; // Import the new VariableTypeName
 
 // Define the structure for each template variable's data
 export type TemplateVariableData = {
-  type: string; // e.g., 'string', 'number', 'boolean', 'datetime', 'multiline'
+  type: VariableTypeName; // Use the explicit VariableTypeName
   value: string; // The actual string value of the variable
 };
 
