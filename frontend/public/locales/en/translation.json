@@ -55,7 +55,10 @@
     "export": {
       "label": "Export Data",
       "button": "Export Templates",
-      "description": "Download all your current templates as a JSON file."
+      "description": "Download all your current templates as a JSON file.",
+      "noTemplatesWarning": "No templates to export.",
+      "success": "Templates exported successfully!",
+      "failure": "Failed to export templates."
     }
   }
 }

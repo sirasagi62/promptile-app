@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Download } from "lucide-react";
+import { toast } from "sonner"; // Import toast from sonner
 
 import {
   Sheet,
@@ -45,38 +46,43 @@ export function SettingsSheet({
 
   const handleExportTemplates = () => {
     if (!templates || templates.length === 0) {
-      console.warn("No templates to export.");
-      // Optionally, you could show a user-friendly message (e.g., a toast notification)
+      toast.info(t("settings.export.noTemplatesWarning")); // Use toast.info for no templates
       return;
     }
 
-    // Map sessions to a serializable format, explicitly converting variables to a plain object
-    const serializableTemplates = templates.map((template) => {
-      let vars: Record<string, string> = {};
-      Object.keys(template.variables).map((k) => {
-        vars[k] = template.variables[k].type;
+    try {
+      // Map sessions to a serializable format, explicitly converting variables to a plain object
+      const serializableTemplates = templates.map((template) => {
+        let vars: Record<string, string> = {};
+        Object.keys(template.variables).map((k) => {
+          vars[k] = template.variables[k].type;
+        });
+        return {
+          id: template.id,
+          title: template.title,
+          template: template.template,
+          createdAt: template.createdAt,
+          // Explicitly create a new object for variables, though JSON.stringify handles Record<string, T> directly
+          variables: vars,
+        };
       });
-      return {
-        id: template.id,
-        title: template.title,
-        template: template.template,
-        createdAt: template.createdAt,
-        // Explicitly create a new object for variables, though JSON.stringify handles Record<string, T> directly
-        variables: vars,
-      };
-    });
-    console.log(serializableTemplates);
+      console.log(serializableTemplates);
 
-    const json = JSON.stringify(serializableTemplates, null, 2); // Pretty print JSON
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "templates.json"; // Suggested filename
-    document.body.appendChild(a); // Append to body to make it clickable
-    a.click(); // Programmatically click the link to trigger download
-    document.body.removeChild(a); // Clean up the temporary link
-    URL.revokeObjectURL(url); // Release the object URL
+      const json = JSON.stringify(serializableTemplates, null, 2); // Pretty print JSON
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "templates.json"; // Suggested filename
+      document.body.appendChild(a); // Append to body to make it clickable
+      a.click(); // Programmatically click the link to trigger download
+      document.body.removeChild(a); // Clean up the temporary link
+      URL.revokeObjectURL(url); // Release the object URL
+      toast.success(t("settings.export.success")); // Success toast
+    } catch (error) {
+      console.error("Failed to export templates:", error);
+      toast.error(t("settings.export.failure")); // Error toast
+    }
   };
 
   return (
