@@ -1,7 +1,7 @@
 import * as React from "react";
 import { VStack } from "@/components/stacks";
 import { useAtom } from "jotai";
-import { templateInputValuesAtom } from "@/atoms"; // Import the updated atom
+import { templateInputValuesAtom, editingVariableKeyAtom } from "@/atoms";
 import Handlebars from "handlebars";
 import { Button } from "@/components/ui/button";
 import { Clipboard } from "lucide-react"; // Import Clipboard icon
@@ -12,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"; // Import Tooltip components
+import { cn } from "@/lib/utils"; 
 
 interface TemplateOutputDisplayProps {
   template: string;
@@ -20,7 +21,8 @@ interface TemplateOutputDisplayProps {
 export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) {
   // Use the updated atom type
   const [variableDataMap] = useAtom(templateInputValuesAtom);
-
+  // Read the currently editing variable key
+  const [editingVariableKey] = useAtom(editingVariableKeyAtom);
   const [copyStatus, setCopyStatus] = React.useState<string>(""); // State for copy feedback
 
   const processedOutput = React.useMemo(() => {
@@ -110,8 +112,12 @@ export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) 
             ) : (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>
-                  <span className="variable-highlight">
-                    {segment.value}
+                  <span
+                    className={cn(
+                      "variable-highlight", // Base highlight style
+                      segment.name === editingVariableKey && "variable-highlight-active" // Active highlight style
+                    )}
+                  >                    {segment.value}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>

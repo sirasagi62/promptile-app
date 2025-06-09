@@ -2,7 +2,7 @@ import { VStack } from "@/components/stacks";
 import { useSession } from "@/context/session-context";
 import { useMemo, useEffect } from "react";
 import { useAtom } from "jotai";
-import { templateInputValuesAtom, TemplateVariableData } from "@/atoms"; // Import TemplateVariableData
+import { templateInputValuesAtom, TemplateVariableData, editingVariableKeyAtom } from "@/atoms"; // Import TemplateVariableData and editingVariableKeyAtom
 import { StringInput } from "./input-fields/StringInput";
 import { MultiLineStringInput } from "./input-fields/MultiLineStringInput";
 import { NumberInput } from "./input-fields/NumberInput";
@@ -20,6 +20,8 @@ export function TemplateInputForm() {
 
   // inputValues stores variableName -> { type: string, value: string }
   const [inputValues, setInputValues] = useAtom(templateInputValuesAtom);
+  // Atom to track the currently editing variable key
+  const [, setEditingVariableKey] = useAtom(editingVariableKeyAtom);
 
   // Initialize inputValues based on sessionVariables and existing atom state
   useEffect(() => {
@@ -47,6 +49,18 @@ export function TemplateInputForm() {
     });
   };
 
+  const handleInputFocus = (variableName: string) => {
+    setEditingVariableKey(variableName);
+  };
+
+  const handleInputBlur = () => {
+    // Set to null when any input in this form loses focus
+    // Note: This will clear the active state if tabbing between fields.
+    // A more sophisticated approach might be needed if you want to keep
+    // the highlight while tabbing within the form.
+    setEditingVariableKey(null);
+  };
+
   const variableNames = useMemo(
     () => Object.keys(sessionVariables),
     [sessionVariables]
@@ -56,6 +70,11 @@ export function TemplateInputForm() {
     // Access the actual string value from the nested object
     const value = inputValues[variableName]?.value || "";
 
+    const commonProps = {
+      onFocus: () => handleInputFocus(variableName),
+      onBlur: handleInputBlur,
+    };
+
     switch (type) {
       case "string":
         return (
@@ -63,6 +82,7 @@ export function TemplateInputForm() {
             placeholder={`Enter ${variableName}`}
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
+            {...commonProps}
           />
         );
       case "string-multi-line":
@@ -72,6 +92,7 @@ export function TemplateInputForm() {
             placeholder={`Enter ${variableName} (multi-line)`}
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
+            {...commonProps}
           />
         );
       case "number":
@@ -80,6 +101,7 @@ export function TemplateInputForm() {
             placeholder={`Enter ${variableName}`}
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
+            {...commonProps}
           />
         );
       case "datetime":
@@ -87,16 +109,31 @@ export function TemplateInputForm() {
           <DateTimeInput
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
+            {...commonProps}
           />
         );
       case "programming-language":
+        // Combobox handles its own focus/blur internally, but we can pass these
+        // to its underlying trigger if it supports it, or manage it differently.
+        // For simplicity, we'll pass it to onValueChange for now, though it's not
+        // a direct focus event. A custom Combobox component might need to expose
+        // onFocus/onBlur from its internal input/button.
         return (
           <Combobox
             options={PROGRAMMING_LANGUAGE_OPTIONS}
             value={value}
-            onValueChange={(newValue) => handleInputChange(variableName, newValue)}
+            onValueChange={(newValue) => {
+              handleInputChange(variableName, newValue);
+              // For combobox, onValueChange is the closest to an "interaction"
+              // that might imply editing. Actual focus/blur on the input part
+              // of the combobox would be more precise.
+              setEditingVariableKey(variableName); // Set on change
+              // No direct blur equivalent for Combobox's internal input here
+            }}
             placeholder={`Select ${variableName} language`}
             className="w-full"
+            // If Combobox had an input element, we'd pass commonProps to it.
+            // For now, focus/blur tracking for Combobox might be less precise.
           />
         );
       default:
@@ -106,6 +143,7 @@ export function TemplateInputForm() {
             value={value}
             onChange={(e) => handleInputChange(variableName, e.target.value)}
             disabled
+            {...commonProps}
           />
         );
     }
