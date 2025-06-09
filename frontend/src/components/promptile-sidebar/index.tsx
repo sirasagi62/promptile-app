@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSession } from "@/context/session-context";
+import { useSession } from "@/context/session-context"; // Import useSession
 import React, { useState } from "react";
 import { HStack, Rest } from "../stacks";
 import { EditDialog } from "@/components/promptile-sidebar/_components/edit-dialog";
@@ -30,33 +30,6 @@ import {
 import { cn } from "@/lib/utils"; // Import cn utility
 import { SettingsSheet } from "@/components/promptile-sidebar/_components/settings-sheet"; // Import SettingsSheet
 
-// Define a type for templates. This should match your actual template structure.
-interface Template {
-  id: string;
-  title: string;
-  content: string;
-  // Add other template properties as needed
-}
-
-// IMPORTANT: Placeholder for useTemplate hook.
-// You MUST replace this with your actual hook or the mechanism by which you access all templates.
-// If templates are stored within sessions, you would extract them from `sessions` here.
-const useTemplate = () => {
-  // Example if templates are part of sessions:
-  // const { sessions } = useSession();
-  // const allTemplates = sessions.flatMap(session => session.templates || []);
-  // return { allTemplates };
-
-  // For demonstration, returning dummy data.
-  const dummyTemplates: Template[] = [
-    { id: "temp-1", title: "Email Template", content: "Dear [Name],\n\n..." },
-    { id: "temp-2", title: "Code Snippet", content: "function example() {\n  console.log('Hello');\n}" },
-    { id: "temp-3", title: "Meeting Agenda", content: "1. Introduction\n2. Discussion Points\n3. Action Items" },
-  ];
-  return { allTemplates: dummyTemplates };
-};
-
-
 export function PromptileSidebar() {
   const { t } = useTranslation();
   const {
@@ -69,8 +42,6 @@ export function PromptileSidebar() {
   } = useSession();
 
   // Retrieve all templates using the assumed useTemplate hook
-  const { allTemplates } = useTemplate();
-
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false); // State for edit dialog
   const [selectedSession, setSelectedSession] = useState<string | null>(null); // State for session being edited
@@ -248,7 +219,7 @@ export function PromptileSidebar() {
       <SettingsSheet
         open={showSettingsSheet}
         onOpenChange={setShowSettingsSheet}
-        templates={allTemplates} // Pass allTemplates to the settings sheet
+        sessions={sessions} // Pass allTemplates to the settings sheet
       />
     </Sidebar>
   );

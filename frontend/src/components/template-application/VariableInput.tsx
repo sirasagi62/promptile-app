@@ -15,20 +15,28 @@ interface VariableInputProps {
   onBlur?: () => void;
 }
 
-export function VariableInput({ variableName, data, onChange, onFocus, onBlur }: VariableInputProps) {
+export function VariableInput({
+  variableName,
+  data,
+  onChange,
+  onFocus,
+  onBlur,
+}: VariableInputProps) {
   const commonInputProps = {
     id: `input-${variableName}`,
     onFocus: onFocus,
     onBlur: onBlur,
   };
 
-  const handleTextOrNumberInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    onChange(variableName, { ...data, value: e.target.value });
+  const handleTextOrNumberInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    onChange(variableName, { type: data.type, value: e.target.value });
   };
 
   const handleComboboxChange = (newValue: string) => {
-    onChange(variableName, { ...data, value: newValue });
-  };
+    onChange(variableName, { type: data.type, value: newValue });
+  }
 
   switch (data.type) {
     case "string":

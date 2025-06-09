@@ -13,28 +13,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label"; // Assuming Label component exists and is imported from here
-
-// Define a type for templates if not already defined globally
-// This interface should match the structure of your actual template objects
-interface Template {
-  id: string;
-  title: string;
-  content: string;
-  // Add other template properties as needed, e.g.,
-  // createdAt: string;
-  // updatedAt: string;
-  // tags: string[];
-}
+import { Session } from "@/lib/session-db";
 
 interface SettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   // `templates` prop is expected to be an array of all template objects
   // This data should be passed from the parent component (PromptileSidebar)
-  templates: Template[];
+  sessions: Session[];
 }
 
-export function SettingsSheet({ open, onOpenChange, templates }: SettingsSheetProps) {
+export function SettingsSheet({
+  open,
+  onOpenChange,
+  sessions: templates,
+}: SettingsSheetProps) {
   const { i18n, t } = useTranslation();
 
   const languageOptions = [
@@ -57,7 +50,24 @@ export function SettingsSheet({ open, onOpenChange, templates }: SettingsSheetPr
       return;
     }
 
-    const json = JSON.stringify(templates, null, 2); // Pretty print JSON
+    // Map sessions to a serializable format, explicitly converting variables to a plain object
+    const serializableTemplates = templates.map((template) => {
+      let vars: Record<string, string> = {};
+      Object.keys(template.variables).map((k) => {
+        vars[k] = template.variables[k].type;
+      });
+      return {
+        id: template.id,
+        title: template.title,
+        template: template.template,
+        createdAt: template.createdAt,
+        // Explicitly create a new object for variables, though JSON.stringify handles Record<string, T> directly
+        variables: vars,
+      };
+    });
+    console.log(serializableTemplates);
+
+    const json = JSON.stringify(serializableTemplates, null, 2); // Pretty print JSON
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
