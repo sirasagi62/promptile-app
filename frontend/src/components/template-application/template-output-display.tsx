@@ -1,46 +1,72 @@
 import * as React from "react";
 import { VStack } from "@/components/stacks";
 import { useAtom } from "jotai";
-import { templateInputValuesAtom } from "@/atoms";
+import { templateInputValuesAtom } from "@/atoms"; // Import the updated atom
 import Handlebars from "handlebars";
 import { Button } from "@/components/ui/button";
 import { Clipboard } from "lucide-react"; // Import Clipboard icon
+import { processTemplateForDisplay, TemplateSegment } from "@/lib/template-utils"; // Import the new utility
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Import Tooltip components
 
 interface TemplateOutputDisplayProps {
   template: string;
 }
 
 export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) {
-  const [variableValues] = useAtom(templateInputValuesAtom);
+  // Use the updated atom type
+  const [variableDataMap] = useAtom(templateInputValuesAtom);
+
   const [copyStatus, setCopyStatus] = React.useState<string>(""); // State for copy feedback
 
   const processedOutput = React.useMemo(() => {
     if (!template) {
       return {
-        content: "The processed template output will appear here.",
+        segments: [{ type: 'text', content: "The processed template output will appear here." }] as TemplateSegment[],
+        plainTextContent: "The processed template output will appear here.",
         isError: false,
       };
     }
+
+    // Transform the variableDataMap into a simple Record<string, string>
+    // for Handlebars, as it only needs the string value.
+    const variableValuesForHandlebars: Record<string, string> = {};
+    for (const key in variableDataMap) {
+      if (Object.prototype.hasOwnProperty.call(variableDataMap, key)) {
+        variableValuesForHandlebars[key] = variableDataMap[key].value;
+      }
+    }
+
     try {
       const compiledTemplate = Handlebars.compile(template);
       // Trim trailing whitespace, including newlines
-      const content = compiledTemplate(variableValues).trimEnd();
+      const plainTextContent = compiledTemplate(variableValuesForHandlebars).trimEnd();
+
+      // Use the new utility to get segments for display, passing the full variableDataMap
+      const segments = processTemplateForDisplay(template, variableDataMap); // Changed argument here
+
       return {
-        content: content,
+        segments: segments,
+        plainTextContent: plainTextContent,
         isError: false,
       };
     } catch (error) {
       console.error("Error processing Handlebars template:", error);
       return {
-        content: `Error processing template: ${error instanceof Error ? error.message : String(error)}`,
+        segments: [{ type: 'text', content: `Error processing template: ${error instanceof Error ? error.message : String(error)}` }] as TemplateSegment[],
+        plainTextContent: `Error processing template: ${error instanceof Error ? error.message : String(error)}`,
         isError: true,
       };
     }
-  }, [template, variableValues]);
+  }, [template, variableDataMap]); // Depend on variableDataMap
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(processedOutput.content);
+      await navigator.clipboard.writeText(processedOutput.plainTextContent);
       setCopyStatus("Copied!");
       setTimeout(() => setCopyStatus(""), 2000); // Clear message after 2 seconds
     } catch (err) {
@@ -64,7 +90,7 @@ export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) 
             onClick={handleCopy}
             variant="outline"
             size="icon" // Use icon size
-            disabled={!processedOutput.content || processedOutput.isError}
+            disabled={!processedOutput.plainTextContent || processedOutput.isError}
           >
             <Clipboard className="h-4 w-4" /> {/* Clipboard icon */}
           </Button>
@@ -77,7 +103,25 @@ export function TemplateOutputDisplay({ template }: TemplateOutputDisplayProps) 
             : "border-muted-foreground/30"
         }`}
       >
-        {processedOutput.content}
+        <TooltipProvider>
+          {processedOutput.segments.map((segment, index) => (
+            segment.type === 'text' ? (
+              <React.Fragment key={index}>{segment.content}</React.Fragment>
+            ) : (
+              <Tooltip key={index}>
+                <TooltipTrigger asChild>
+                  <span className="variable-highlight">
+                    {segment.value}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {/* Display the variable name and its type */}
+                  {segment.name} ({segment.variableType})
+                </TooltipContent>
+              </Tooltip>
+            )
+          ))}
+        </TooltipProvider>
       </div>
     </VStack>
   );

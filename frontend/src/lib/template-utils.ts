@@ -1,3 +1,5 @@
+import { TemplateVariableData } from "@/atoms"; // Import TemplateVariableData type
+
 /**
  * Extracts unique variable names from a Mustache template string.
  * It identifies variables enclosed in `{{...}}` or `{{{...}}}` tags,
@@ -26,4 +28,59 @@ export function extractMustacheVariables(template: string): string[] {
   }
 
   return Array.from(variables);
+}
+
+export type TemplateSegment =
+  | { type: 'text'; content: string }
+  | { type: 'variable'; name: string; value: string; variableType: string }; // Added variableType
+
+/**
+ * Processes a Handlebars template string to identify and segment
+ * plain text and substituted variable parts.
+ *
+ * @param template The Handlebars template string.
+ * @param variableDataMap A record of variable names to their full data (type and value).
+ * @returns An array of TemplateSegment objects.
+ */
+export function processTemplateForDisplay(
+  template: string,
+  variableDataMap: Record<string, TemplateVariableData> // Changed parameter type
+): TemplateSegment[] {
+  const segments: TemplateSegment[] = [];
+  const regex = /\{\{?([^{}]+?)\}\}/g; // Matches {{var}} or {{{var}}}
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(template)) !== null) {
+    const fullMatch = match[0]; // e.g., "{{variableName}}"
+    const variableName = match[1].trim(); // e.g., "variableName"
+    const matchStart = match.index;
+    const matchEnd = regex.lastIndex;
+
+    // Add preceding plain text segment
+    if (matchStart > lastIndex) {
+      segments.push({ type: 'text', content: template.substring(lastIndex, matchStart) });
+    }
+
+    // Check if it's a special Handlebars tag (e.g., #, /, !, >)
+    if (variableName.length > 0 && ['#', '^', '/', '!', '>'].includes(variableName[0])) {
+      // Treat special Handlebars tags as plain text for display purposes
+      segments.push({ type: 'text', content: fullMatch });
+    } else {
+      // Add variable segment
+      const variableData = variableDataMap[variableName];
+      const substitutedValue = variableData?.value || ''; // Use empty string if variable not found
+      const variableType = variableData?.type || 'unknown'; // Get the type from variableDataMap
+      segments.push({ type: 'variable', name: variableName, value: substitutedValue, variableType: variableType }); // Include variableType
+    }
+
+    lastIndex = matchEnd;
+  }
+
+  // Add any remaining plain text after the last match
+  if (lastIndex < template.length) {
+    segments.push({ type: 'text', content: template.substring(lastIndex) });
+  }
+
+  return segments;
 }

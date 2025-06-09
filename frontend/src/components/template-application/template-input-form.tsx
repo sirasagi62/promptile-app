@@ -2,7 +2,7 @@ import { VStack } from "@/components/stacks";
 import { useSession } from "@/context/session-context";
 import { useMemo, useEffect } from "react";
 import { useAtom } from "jotai";
-import { templateInputValuesAtom } from "@/atoms";
+import { templateInputValuesAtom, TemplateVariableData } from "@/atoms"; // Import TemplateVariableData
 import { StringInput } from "./input-fields/StringInput";
 import { MultiLineStringInput } from "./input-fields/MultiLineStringInput";
 import { NumberInput } from "./input-fields/NumberInput";
@@ -12,26 +12,39 @@ import { PROGRAMMING_LANGUAGE_OPTIONS } from "@/lib/variable-types"; // Import p
 
 export function TemplateInputForm() {
   const { currentSession } = useSession();
+  // sessionVariables stores variableName -> type (e.g., { "name": "string", "age": "number" })
   const sessionVariables = useMemo(
     () => currentSession?.variables || {},
     [currentSession]
   );
 
+  // inputValues stores variableName -> { type: string, value: string }
   const [inputValues, setInputValues] = useAtom(templateInputValuesAtom);
 
+  // Initialize inputValues based on sessionVariables and existing atom state
   useEffect(() => {
-    const initialValues: Record<string, string> = {};
+    const initialValues: Record<string, TemplateVariableData> = {};
     Object.keys(sessionVariables).forEach((variableName) => {
-      initialValues[variableName] = inputValues[variableName] || "";
+      const variableType = sessionVariables[variableName];
+      initialValues[variableName] = {
+        type: variableType,
+        value: inputValues[variableName]?.value || "", // Preserve existing value if available
+      };
     });
     setInputValues(initialValues);
   }, [sessionVariables, setInputValues]);
 
-  const handleInputChange = (variableName: string, value: string) => {
-    setInputValues((prevValues) => ({
-      ...prevValues,
-      [variableName]: value,
-    }));
+  const handleInputChange = (variableName: string, newValue: string) => {
+    setInputValues((prevValues) => {
+      const variableType = sessionVariables[variableName]; // Get the type from sessionVariables
+      return {
+        ...prevValues,
+        [variableName]: {
+          type: variableType, // Store the type
+          value: newValue,    // Store the new value
+        },
+      };
+    });
   };
 
   const variableNames = useMemo(
@@ -40,7 +53,8 @@ export function TemplateInputForm() {
   );
 
   const renderInputField = (variableName: string, type: string) => {
-    const value = inputValues[variableName] || "";
+    // Access the actual string value from the nested object
+    const value = inputValues[variableName]?.value || "";
 
     switch (type) {
       case "string":

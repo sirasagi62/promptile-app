@@ -201,3 +201,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom styles for variable highlighting */
+.variable-highlight {
+  @apply bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1 rounded-sm cursor-help;
+}
