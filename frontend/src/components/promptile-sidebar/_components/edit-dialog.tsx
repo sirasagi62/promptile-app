@@ -38,6 +38,11 @@ export function EditDialog({
             id="name"
             value={editTitle}
             onChange={handleTitleChange}
+            onKeyDown={(e) => { // Add onKeyDown handler
+              if (e.key === 'Enter') {
+                handleSaveTitle();
+              }
+            }}
             className="w-full flex-1 rounded-[4px] border border-mauve7 bg-white px-[10px] py-[7px] shadow-blackA4 focus:shadow-blackA6"
           />
         </fieldset>

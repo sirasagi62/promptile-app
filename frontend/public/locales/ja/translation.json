@@ -30,7 +30,11 @@
     "applicationGroupLabel": "アプリケーション",
     "createNew": "新規作成",
     "historyGroupLabel": "履歴",
-    "searchSessionsPlaceholder": "セッションを検索"
+    "searchSessionsPlaceholder": "セッションを検索",
+    "deleteConfirmTitle": "セッションの削除",
+    "deleteConfirmDescription": "このセッションを完全に削除してもよろしいですか？この操作は元に戻せません。",
+    "deleteConfirmCancel": "キャンセル",
+    "deleteConfirmAction": "削除"
   },
   "templateInputForm": {
     "title": "テンプレート入力",

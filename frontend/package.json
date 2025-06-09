@@ -12,6 +12,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-navigation-menu": "^1.2.13",
     "@radix-ui/react-popover": "^1.1.14",
