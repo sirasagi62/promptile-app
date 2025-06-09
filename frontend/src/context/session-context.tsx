@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { getDB, Session } from '../lib/session-db';
 import { extractMustacheVariables } from '../lib/template-utils';
+import { TemplateVariableData } from '../atoms'; // Import TemplateVariableData
 
 type SessionContextType = {
   sessions: Session[];
@@ -11,7 +12,7 @@ type SessionContextType = {
   switchSession: (id: string) => void;
   updateSessionTitle: (id: string, title: string) => void;
   updateSessionTemplate: (id: string, template: string) => void;
-  updateSessionVariables: (id: string, variables: Record<string, string>) => void;
+  updateSessionVariables: (id: string, variables: Record<string, TemplateVariableData>) => void; // Updated type
   currentSession: Session | undefined;
 };
 
@@ -77,7 +78,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       title: title,
       template: "",
       createdAt: Date.now(),
-      variables: {}, // Initialize variables for new sessions
+      variables: {}, // Initialize variables for new sessions as Record<string, TemplateVariableData>
     };
 
     try {
@@ -126,11 +127,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateSessionTemplate = async (id: string, template: string) => {
     await _updateAndPersistSession(id, (session) => {
       const newExtractedVariables = extractMustacheVariables(template);
-      const updatedVariables: Record<string, string> = {};
+      const updatedVariables: Record<string, TemplateVariableData> = {};
 
-      // Preserve types for existing variables, add new ones with default "string" type
+      // Preserve types and values for existing variables, add new ones with default "string" type and empty value
       newExtractedVariables.forEach((variable) => {
-        updatedVariables[variable] = session.variables[variable] || "string";
+        updatedVariables[variable] = session.variables[variable] || { type: "string", value: "" };
       });
 
       return {
@@ -142,7 +143,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   // Function to update a session's variables (used by VariablePanel for manual changes)
-  const updateSessionVariables = async (id: string, variables: Record<string, string>) => {
+  const updateSessionVariables = async (id: string, variables: Record<string, TemplateVariableData>) => { // Updated type
     await _updateAndPersistSession(id, (session) => ({ ...session, variables }));
   };
 

@@ -2,100 +2,61 @@ import { VStack } from "@/components/stacks";
 import { useSession } from "@/context/session-context";
 import { useMemo, useEffect } from "react";
 import { useAtom } from "jotai";
-import { templateInputValuesAtom } from "@/atoms";
-import { StringInput } from "./input-fields/StringInput";
-import { MultiLineStringInput } from "./input-fields/MultiLineStringInput";
-import { NumberInput } from "./input-fields/NumberInput";
-import { DateTimeInput } from "./input-fields/DateTimeInput";
-import { Combobox } from "@/components/ui/combobox"; // Import Combobox
-import { PROGRAMMING_LANGUAGE_OPTIONS } from "@/lib/variable-types"; // Import programming language options
+import { templateInputValuesAtom, TemplateVariableData, editingVariableKeyAtom } from "@/atoms";
+import { VariableInput } from "./VariableInput"; // Import the new VariableInput component
 
 export function TemplateInputForm() {
   const { currentSession } = useSession();
+  // sessionVariables stores variableName -> TemplateVariableData (e.g., { "name": { type: "string", value: "" } })
   const sessionVariables = useMemo(
     () => currentSession?.variables || {},
     [currentSession]
   );
 
+  // inputValues stores variableName -> { type: string, value: string }
   const [inputValues, setInputValues] = useAtom(templateInputValuesAtom);
+  // Atom to track the currently editing variable key
+  const [, setEditingVariableKey] = useAtom(editingVariableKeyAtom);
 
+  // Initialize inputValues based on sessionVariables and existing atom state
   useEffect(() => {
-    const initialValues: Record<string, string> = {};
-    Object.keys(sessionVariables).forEach((variableName) => {
-      initialValues[variableName] = inputValues[variableName] || "";
+    setInputValues((prevInputValues) => {
+      const newValues: Record<string, TemplateVariableData> = {};
+      // Iterate over variables defined in the current session
+      Object.keys(sessionVariables).forEach((variableName) => {
+        const sessionData = sessionVariables[variableName];
+        newValues[variableName] = {
+          type: sessionData.type, // Always take the type from the session definition
+          value: prevInputValues[variableName]?.value || sessionData.value || "", // Prefer existing user input, then session default, then empty
+        };
+      });
+      // Any variables in prevInputValues but not in sessionVariables will be implicitly removed
+      // because we are building newValues from scratch based on sessionVariables.
+      return newValues;
     });
-    setInputValues(initialValues);
   }, [sessionVariables, setInputValues]);
 
-  const handleInputChange = (variableName: string, value: string) => {
+
+  // This handler will be passed to VariableInput
+  const handleVariableDataChange = (variableName: string, newData: TemplateVariableData) => {
     setInputValues((prevValues) => ({
       ...prevValues,
-      [variableName]: value,
+      [variableName]: newData, // Directly update with the new data object
     }));
+  };
+
+  const handleInputFocus = (variableName: string) => {
+    setEditingVariableKey(variableName);
+  };
+
+  const handleInputBlur = () => {
+    setEditingVariableKey(null);
   };
 
   const variableNames = useMemo(
     () => Object.keys(sessionVariables),
     [sessionVariables]
   );
-
-  const renderInputField = (variableName: string, type: string) => {
-    const value = inputValues[variableName] || "";
-
-    switch (type) {
-      case "string":
-        return (
-          <StringInput
-            placeholder={`Enter ${variableName}`}
-            value={value}
-            onChange={(e) => handleInputChange(variableName, e.target.value)}
-          />
-        );
-      case "string-multi-line":
-      case "array": // Treat array as multi-line string for now (e.g., JSON or comma-separated)
-        return (
-          <MultiLineStringInput
-            placeholder={`Enter ${variableName} (multi-line)`}
-            value={value}
-            onChange={(e) => handleInputChange(variableName, e.target.value)}
-          />
-        );
-      case "number":
-        return (
-          <NumberInput
-            placeholder={`Enter ${variableName}`}
-            value={value}
-            onChange={(e) => handleInputChange(variableName, e.target.value)}
-          />
-        );
-      case "datetime":
-        return (
-          <DateTimeInput
-            value={value}
-            onChange={(e) => handleInputChange(variableName, e.target.value)}
-          />
-        );
-      case "programming-language":
-        return (
-          <Combobox
-            options={PROGRAMMING_LANGUAGE_OPTIONS}
-            value={value}
-            onValueChange={(newValue) => handleInputChange(variableName, newValue)}
-            placeholder={`Select ${variableName} language`}
-            className="w-full"
-          />
-        );
-      default:
-        return (
-          <StringInput
-            placeholder={`Unsupported type: ${type}`}
-            value={value}
-            onChange={(e) => handleInputChange(variableName, e.target.value)}
-            disabled
-          />
-        );
-    }
-  };
 
   return (
     <VStack className="h-full p-4 overflow-auto">
@@ -111,11 +72,17 @@ export function TemplateInputForm() {
         ) : (
           variableNames.map((variable) => (
             <div key={variable} className="grid grid-cols-6 items-center gap-4">
-              <label className="text-right font-bold col-span-1">
+              <label htmlFor={`input-${variable}`} className="text-right font-bold col-span-1">
                 {variable}
               </label>
               <div className="col-span-5">
-                {renderInputField(variable, sessionVariables[variable])}
+                <VariableInput
+                  variableName={variable}
+                  data={inputValues[variable] || { type: "string", value: "" }} // Ensure data is always available
+                  onChange={handleVariableDataChange}
+                  onFocus={() => handleInputFocus(variable)}
+                  onBlur={handleInputBlur}
+                />
               </div>
             </div>
           ))

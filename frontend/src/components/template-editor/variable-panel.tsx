@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { Combobox } from "@/components/ui/combobox";
 import { useSession } from "@/context/session-context"; // Import useSession
+import { VARIABLE_TYPE_OPTIONS, VariableTypeName } from "@/lib/variable-types"; // Import from centralized types
+import { TemplateVariableData } from "@/atoms"; // Import TemplateVariableData
 
 export function VariablePanel() {
   const { currentSession, updateSessionVariables } = useSession(); // Get session from context
@@ -9,27 +11,23 @@ export function VariablePanel() {
     [currentSession]
   ); // Derive sessionVariables
 
-  // Define common variable type options for the Combobox
-  const typeOptions = [
-    { value: "string", label: "String" },
-    { value: "string-multi-line", label:"StringMultiLine"},
-    { value: "number", label: "Number" },
-    { value: "datetime", label: "DateTime" },
-    { value: "programming-language", label: "ProglammingLaunguage" },
-    { value: "array", label: "Array" },
-  ];
-
   const variableNames = useMemo(
     () => Object.keys(sessionVariables),
     [sessionVariables]
   );
 
-  const handleTypeChange = (variableName: string, type: string) => {
-    if (currentSession)
-      updateSessionVariables(currentSession.id, {
+  const handleTypeChange = (variableName: string, newType: VariableTypeName) => {
+    if (currentSession) {
+      const currentVariableData: TemplateVariableData = sessionVariables[variableName] || { type: "string", value: "" };
+      const updatedVariables = {
         ...sessionVariables,
-        [variableName]: type,
-      });
+        [variableName]: {
+          ...currentVariableData, // Preserve existing value
+          type: newType, // Update the type
+        },
+      };
+      updateSessionVariables(currentSession.id, updatedVariables);
+    }
   };
 
   return (
@@ -52,10 +50,10 @@ export function VariablePanel() {
                 {variable}
               </label>
               <Combobox // Use Combobox here
-                options={typeOptions}
-                value={sessionVariables[variable]} // Default to "string" if not set
+                options={VARIABLE_TYPE_OPTIONS} // Use the imported options
+                value={sessionVariables[variable]?.type || "string"} // Access the 'type' property
                 onValueChange={(newValue) =>
-                  handleTypeChange(variable, newValue)
+                  handleTypeChange(variable, newValue as VariableTypeName) // Cast to VariableTypeName
                 }
                 className="col-span-3"
                 placeholder="Select type"

@@ -1,6 +1,13 @@
 // This file is created as part of the refactoring plan to centralize variable type definitions.
 // The 'typeOptions' array from variable-panel.tsx would ideally be moved here.
 // However, variable-panel.tsx is a read-only file, so it cannot be updated to import from here.
+export type VariableTypeName =
+  | "string"
+  | "string-multi-line"
+  | "number"
+  | "datetime"
+  | "programming-language"
+  | "array";
 
 export const VARIABLE_TYPE_OPTIONS = [
   { value: "string", label: "String" },
