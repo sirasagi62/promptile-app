@@ -1,6 +1,5 @@
 # Promptile
 <img src="./assets/promptile-full-icon-std.svg" />
-<img src="./assets/promptile-demo.gif" />
 <br />
 
 ## About
@@ -23,3 +22,6 @@ If you want to build for a specific platform, please set the platform.
 ```sh
 wails build --platform windows
 ```
+
+## Screenshot
+<img src="./assets/promptile-demo.gif" />

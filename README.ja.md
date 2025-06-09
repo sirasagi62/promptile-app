@@ -1,6 +1,5 @@
 # Promptile
 <img src="./assets/promptile-full-icon-std.svg" />
-<img src="./assets/promptile-demo.gif" />
 <br />
 
 ## About
@@ -25,3 +24,5 @@ wails build
 wails build --platform windows
 ```
 
+## Screenshot
+<img src="./assets/promptile-demo.gif" />
