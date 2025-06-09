@@ -1,0 +1,40 @@
+{
+  "greeting": "こんにちは",
+  "mainPage": {
+    "edit": "編集",
+    "template": "テンプレート適用"
+  },
+  "editDialog": {
+    "title": "セッション名の編集",
+    "labelTitle": "タイトル"
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "save": "保存"
+  },
+  "templateOutput": {
+    "placeholder": "処理されたテンプレート出力がここに表示されます。",
+    "errorPrefix": "テンプレート処理エラー: ",
+    "title": "テンプレート出力",
+    "copied": "コピーしました！",
+    "failedToCopy": "コピーに失敗しました！"
+  },
+  "variablePanel": {
+    "title": "テンプレート変数の設定",
+    "description": "テンプレート変数の型を定義します。",
+    "noVariables": "テンプレートに変数がありません。",
+    "selectTypePlaceholder": "タイプを選択"
+  },
+  "sidebar": {
+    "newSessionDefaultTitle": "新規セッション",
+    "applicationGroupLabel": "アプリケーション",
+    "createNew": "新規作成",
+    "historyGroupLabel": "履歴",
+    "searchSessionsPlaceholder": "セッションを検索"
+  },
+  "templateInputForm": {
+    "title": "テンプレート入力",
+    "description": "テンプレート変数の値を入力してください。",
+    "noVariables": "テンプレートに変数がありません。"
+  }
+}

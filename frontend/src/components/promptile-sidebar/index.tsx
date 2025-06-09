@@ -16,8 +16,10 @@ import { useSession } from "@/context/session-context";
 import React, { useState } from "react";
 import { HStack, Rest } from "../stacks";
 import { EditDialog } from "@/components/promptile-sidebar/_components/edit-dialog";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 
 export function PromptileSidebar() {
+  const { t } = useTranslation(); // Initialize useTranslation
   const {
     sessions,
     addSession,
@@ -31,7 +33,7 @@ export function PromptileSidebar() {
   const [editTitle, setEditTitle] = useState("");
 
   const handleAddSession = () => {
-    addSession("新規セッション");
+    addSession(t('sidebar.newSessionDefaultTitle'));
   };
 
   const filteredSessions = sessions.filter((session) =>
@@ -59,7 +61,7 @@ export function PromptileSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.applicationGroupLabel')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem key="new">
@@ -70,7 +72,7 @@ export function PromptileSidebar() {
                     onClick={handleAddSession}
                   >
                     <FilePlus className="h-4 w-4" />
-                    <span>新規作成</span>
+                    <span>{t('sidebar.createNew')}</span>
                   </Button>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -79,11 +81,11 @@ export function PromptileSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>履歴</SidebarGroupLabel>
+          <SidebarGroupLabel>{t('sidebar.historyGroupLabel')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <Input
               type="text"
-              placeholder="セッションを検索"
+              placeholder={t('sidebar.searchSessionsPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="mb-2"

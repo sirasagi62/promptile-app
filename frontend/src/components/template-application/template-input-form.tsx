@@ -4,8 +4,10 @@ import { useMemo, useEffect } from "react";
 import { useAtom } from "jotai";
 import { templateInputValuesAtom, TemplateVariableData, editingVariableKeyAtom } from "@/atoms";
 import { VariableInput } from "./VariableInput"; // Import the new VariableInput component
+import { useTranslation } from "react-i18next"; // Import useTranslation
 
 export function TemplateInputForm() {
+  const { t } = useTranslation(); // Initialize useTranslation
   const { currentSession } = useSession();
   // sessionVariables stores variableName -> TemplateVariableData (e.g., { "name": { type: "string", value: "" } })
   const sessionVariables = useMemo(
@@ -60,14 +62,14 @@ export function TemplateInputForm() {
 
   return (
     <VStack className="h-full p-4 overflow-auto">
-      <h2 className="text-lg font-semibold mb-4">Template Inputs</h2>
+      <h2 className="text-lg font-semibold mb-4">{t('templateInputForm.title')}</h2>
       <p className="text-sm text-muted-foreground mb-4">
-        Enter values for your template variables.
+        {t('templateInputForm.description')}
       </p>
       <div className="grid gap-4 py-4">
         {variableNames.length === 0 ? (
           <p className="text-muted-foreground">
-            No variables found in the template.
+            {t('templateInputForm.noVariables')}
           </p>
         ) : (
           variableNames.map((variable) => (
