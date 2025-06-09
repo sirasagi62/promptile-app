@@ -30,7 +30,11 @@
     "applicationGroupLabel": "Application",
     "createNew": "Create New",
     "historyGroupLabel": "History",
-    "searchSessionsPlaceholder": "Search sessions"
+    "searchSessionsPlaceholder": "Search sessions",
+    "deleteConfirmTitle": "Delete Session",
+    "deleteConfirmDescription": "Are you sure you want to permanently delete this session? This action cannot be undone.",
+    "deleteConfirmCancel": "Cancel",
+    "deleteConfirmAction": "Delete"
   },
   "templateInputForm": {
     "title": "Template Inputs",
