@@ -34,11 +34,31 @@
     "deleteConfirmTitle": "セッションの削除",
     "deleteConfirmDescription": "このセッションを完全に削除してもよろしいですか？この操作は元に戻せません。",
     "deleteConfirmCancel": "キャンセル",
-    "deleteConfirmAction": "削除"
+    "deleteConfirmAction": "削除",
+    "settingsGroupLabel": "設定",
+    "settings": "設定"
   },
   "templateInputForm": {
     "title": "テンプレート入力",
     "description": "テンプレート変数の値を入力してください。",
     "noVariables": "テンプレートに変数がありません。"
+  },
+  "settings": {
+    "title": "ユーザー設定",
+    "description": "アプリケーションの設定を管理します。",
+    "language": {
+      "label": "言語",
+      "placeholder": "言語を選択",
+      "english": "英語",
+      "japanese": "日本語"
+    },
+    "export": {
+      "label": "データのエクスポート",
+      "button": "テンプレートをエクスポート",
+      "description": "現在のすべてのテンプレートをJSONファイルとしてダウンロードします。",
+      "noTemplatesWarning": "エクスポートするテンプレートがありません。",
+      "success": "テンプレートが正常にエクスポートされました！",
+      "failure": "テンプレートのエクスポートに失敗しました。"
+    }
   }
 }

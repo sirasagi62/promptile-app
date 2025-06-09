@@ -1,4 +1,4 @@
-import { FilePlus, MoreHorizontal, Trash } from "lucide-react";
+import { FilePlus, MoreHorizontal, Trash, Settings as SettingsIcon } from "lucide-react"; // Import SettingsIcon
 
 import {
   Sidebar,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSession } from "@/context/session-context";
+import { useSession } from "@/context/session-context"; // Import useSession
 import React, { useState } from "react";
 import { HStack, Rest } from "../stacks";
 import { EditDialog } from "@/components/promptile-sidebar/_components/edit-dialog";
@@ -27,6 +27,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"; // Import AlertDialog components
+import { cn } from "@/lib/utils"; // Import cn utility
+import { SettingsSheet } from "@/components/promptile-sidebar/_components/settings-sheet"; // Import SettingsSheet
 
 export function PromptileSidebar() {
   const { t } = useTranslation();
@@ -36,15 +38,21 @@ export function PromptileSidebar() {
     switchSession,
     deleteSession,
     updateSessionTitle,
+    currentSessionId, // Get the current session ID
   } = useSession();
+
+  // Retrieve all templates using the assumed useTemplate hook
   const [searchQuery, setSearchQuery] = useState("");
   const [open, setOpen] = useState(false); // State for edit dialog
   const [selectedSession, setSelectedSession] = useState<string | null>(null); // State for session being edited
   const [editTitle, setEditTitle] = useState(""); // State for edit dialog input
 
-  // New states for delete confirmation
+  // States for delete confirmation
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [sessionToDeleteId, setSessionToDeleteId] = useState<string | null>(null);
+
+  // State for settings sheet
+  const [showSettingsSheet, setShowSettingsSheet] = useState(false);
 
   const handleAddSession = () => {
     addSession(t('sidebar.newSessionDefaultTitle'));
@@ -71,7 +79,7 @@ export function PromptileSidebar() {
     setOpen(false);
   };
 
-  // New handlers for delete confirmation
+  // Handlers for delete confirmation
   const handleDeleteClick = (sessionId: string) => {
     setSessionToDeleteId(sessionId);
     setShowDeleteConfirm(true);
@@ -114,6 +122,26 @@ export function PromptileSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
+          <SidebarGroupLabel>{t('sidebar.settingsGroupLabel')}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem key="settings">
+                <SidebarMenuButton asChild>
+                  <Button
+                    variant="ghost"
+                    className="justify-start w-full gap-2"
+                    onClick={() => setShowSettingsSheet(true)}
+                  >
+                    <SettingsIcon className="h-4 w-4" />
+                    <span>{t('sidebar.settings')}</span>
+                  </Button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup>
           <SidebarGroupLabel>{t('sidebar.historyGroupLabel')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <Input
@@ -125,7 +153,12 @@ export function PromptileSidebar() {
             />
             <SidebarMenu>
               {filteredSessions.map((session) => (
-                <SidebarMenuItem key={session.id}>
+                <SidebarMenuItem
+                  key={session.id}
+                  className={cn(
+                    session.id === currentSessionId && "bg-accent text-accent-foreground"
+                  )}
+                >
                   <SidebarMenuButton asChild>
                     <HStack>
                       <Rest
@@ -181,6 +214,13 @@ export function PromptileSidebar() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Settings Sheet */}
+      <SettingsSheet
+        open={showSettingsSheet}
+        onOpenChange={setShowSettingsSheet}
+        sessions={sessions} // Pass allTemplates to the settings sheet
+      />
     </Sidebar>
   );
 }
