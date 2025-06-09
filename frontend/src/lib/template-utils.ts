@@ -69,7 +69,7 @@ export function processTemplateForDisplay(
     } else {
       // Add variable segment
       const variableData = variableDataMap[variableName];
-      const substitutedValue = variableData?.value || ''; // Use empty string if variable not found
+      const substitutedValue = variableData.value==="" ? `(${variableName})` : variableData.value ; // Use empty string if variable not found
       const variableType = variableData?.type || 'unknown'; // Get the type from variableDataMap
       segments.push({ type: 'variable', name: variableName, value: substitutedValue, variableType: variableType }); // Include variableType
     }
