@@ -43,6 +43,9 @@
     "description": "Enter values for your template variables.",
     "noVariables": "No variables found in the template."
   },
+  "templateEditor": {
+    "addSession": "New session created."
+  },
   "settings": {
     "title": "User Settings",
     "description": "Manage your application preferences.",

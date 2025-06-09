@@ -43,6 +43,9 @@
     "description": "テンプレート変数の値を入力してください。",
     "noVariables": "テンプレートに変数がありません。"
   },
+  "templateEditor": {
+    "addSession": "新しいセッションが作成されました。"
+  },
   "settings": {
     "title": "ユーザー設定",
     "description": "アプリケーションの設定を管理します。",
