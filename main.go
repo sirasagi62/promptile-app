@@ -25,10 +25,10 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:             "promptile-app",
-		Width:             1024,
-		Height:            768,
-		MinWidth:          1024,
-		MinHeight:         768,
+		Width:             1200,
+		Height:            600,
+		MinWidth:          400,
+		MinHeight:         600,
 		MaxWidth:          1280,
 		MaxHeight:         800,
 		DisableResize:     false,
@@ -37,17 +37,17 @@ func main() {
 		StartHidden:       false,
 		HideWindowOnClose: false,
 		BackgroundColour:  &options.RGBA{R: 255, G: 255, B: 255, A: 255},
-		AssetServer:       &assetserver.Options{
+		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
-		Menu:              nil,
-		Logger:            nil,
-		LogLevel:          logger.DEBUG,
-		OnStartup:         app.startup,
-		OnDomReady:        app.domReady,
-		OnBeforeClose:     app.beforeClose,
-		OnShutdown:        app.shutdown,
-		WindowStartState:  options.Normal,
+		Menu:             nil,
+		Logger:           nil,
+		LogLevel:         logger.DEBUG,
+		OnStartup:        app.startup,
+		OnDomReady:       app.domReady,
+		OnBeforeClose:    app.beforeClose,
+		OnShutdown:       app.shutdown,
+		WindowStartState: options.Normal,
 		Bind: []interface{}{
 			app,
 		},
@@ -58,7 +58,7 @@ func main() {
 			DisableWindowIcon:    false,
 			// DisableFramelessWindowDecorations: false,
 			WebviewUserDataPath: "",
-			ZoomFactor: 1.0,
+			ZoomFactor:          1.0,
 		},
 		// Mac platform specific options
 		Mac: &mac.Options{
